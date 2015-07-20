@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 
-public class ConfigImpl implements Config, Serializable {
+public final class ConfigImpl implements Config, Serializable {
 
     private final String value;
 

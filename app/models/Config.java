@@ -1,7 +1,6 @@
 package models;
 
 import com.google.inject.BindingAnnotation;
-import com.typesafe.config.ConfigValueType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
