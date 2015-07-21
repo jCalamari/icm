@@ -84,13 +84,14 @@ object InjectableConfigModuleSpec extends Specification {
 
     "inject nested non empty config" in {
       val injector = playInjector()
-      injector.instanceOf(binding(classOf[String], "nonEmptyConfig.innerKey")) must equalTo[String]("innerValue")
+      injector.instanceOf(binding(classOf[Configuration], "nonEmptyConf")) must not be empty
+      injector.instanceOf(binding(classOf[String], "nonEmptyConf.innerKey")) must equalTo[String]("innerValue")
     }
 
-    "not inject empty config" in {
+    "inject empty config" in {
       val injector = playInjector()
-      injector.instanceOf(binding(classOf[Configuration], "emptyConfig")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[Configuration], "innerEmptyConfig")) must throwAn[ConfigurationException]
+      injector.instanceOf(binding(classOf[Configuration], "emptyConf")).entrySet must beEmpty
+      injector.instanceOf(binding(classOf[Configuration], "emptyConf.innerEmptyConf")).entrySet must beEmpty
     }
 
     "not inject nulls" in {
