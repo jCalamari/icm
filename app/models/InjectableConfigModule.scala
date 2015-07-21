@@ -26,7 +26,7 @@ class InjectableConfigModule(basePath: Option[String] = None) extends Module {
     case ConfigValueType.NUMBER => bindNumber(key, value)
     case ConfigValueType.BOOLEAN => bindBoolean(value.asJavaBoolean(), key)
     case ConfigValueType.NULL => Nil
-    case ConfigValueType.STRING => List(bind[String].qualifiedWith(Configs.config(key)).toInstance(value.unwrapped().toString))
+    case ConfigValueType.STRING => bindString(value.unwrapped().toString, key)
   }
 
   private def bindNumber(key: String, value: ConfigValue): List[Binding[_]] = value.unwrapped() match {
@@ -41,6 +41,10 @@ class InjectableConfigModule(basePath: Option[String] = None) extends Module {
     )
     case d: java.lang.Double => List(bindDouble(d, key))
     case _ => Nil
+  }
+
+  private def bindString(s: java.lang.String, key: String): List[Binding[_]] = {
+    List(bind[String].qualifiedWith(Configs.config(key)).toInstance(s))
   }
 
   private def bindBoolean(b: java.lang.Boolean, key: String): List[Binding[_]] = {
