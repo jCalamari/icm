@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 
-public final class ConfigImpl implements Config, Serializable {
+final class ConfigImpl implements Config, Serializable {
 
     private final String value;
 
-    public ConfigImpl(String key) {
+    ConfigImpl(String key) {
         this.value = Objects.requireNonNull(key, "value");
     }
 
