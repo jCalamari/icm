@@ -20,39 +20,36 @@ class InjectableConfigModule(basePath: Option[String] = None) extends Module {
     }
   }
 
-  private def bind(key: String, value: ConfigValue): List[Binding[_]] = {
-    value.valueType() match {
-      case ConfigValueType.OBJECT => bindObject(key, value) ::: bindObjectBody(key, value.asInstanceOf[java.util.Map[String, ConfigValue]].asScala.toMap)
-      case ConfigValueType.LIST => bindListBody(key, value.asInstanceOf[java.util.List[ConfigValue]].asScala.toList)
-      case ConfigValueType.NUMBER => bindNumber(key, value)
-      case ConfigValueType.BOOLEAN => List(bind[java.lang.Boolean].qualifiedWith(Configs.config(key)).toInstance(value.unwrapped().asInstanceOf[java.lang.Boolean]))
-      case ConfigValueType.NULL => Nil
-      case ConfigValueType.STRING => List(bind[String].qualifiedWith(Configs.config(key)).toInstance(value.unwrapped().toString))
-    }
+  private def bind(key: String, value: ConfigValue): List[Binding[_]] = value.valueType() match {
+    case ConfigValueType.OBJECT =>
+      bindObject(key, value) ::: bindObjectBody(key, value.asInstanceOf[java.util.Map[String, ConfigValue]].asScala.toMap)
+    case ConfigValueType.LIST =>
+      bindListBody(key, value.asInstanceOf[java.util.List[ConfigValue]].asScala.toList)
+    case ConfigValueType.NUMBER => bindNumber(key, value)
+    case ConfigValueType.BOOLEAN =>
+      List(bind[java.lang.Boolean].qualifiedWith(Configs.config(key)).toInstance(value.unwrapped().asInstanceOf[java.lang.Boolean]))
+    case ConfigValueType.NULL => Nil
+    case ConfigValueType.STRING =>
+      List(bind[String].qualifiedWith(Configs.config(key)).toInstance(value.unwrapped().toString))
   }
 
-  private def bindNumber(key: String, value: ConfigValue): List[Binding[_]] = {
-    val qualifier = Configs.config(key)
-    value.unwrapped() match {
-      case i: java.lang.Integer => List(
-        bind[java.lang.Integer].qualifiedWith(qualifier).toInstance(i),
-        bind[java.lang.Long].qualifiedWith(qualifier).toInstance(java.lang.Long.valueOf(i.longValue())),
-        bind[java.lang.Double].qualifiedWith(qualifier).toInstance(java.lang.Double.valueOf(i.doubleValue()))
-      )
-      case l: java.lang.Long => List(
-        bind[java.lang.Long].qualifiedWith(qualifier).toInstance(l),
-        bind[java.lang.Double].qualifiedWith(qualifier).toInstance(java.lang.Double.valueOf(l.doubleValue()))
-      )
-      case d: java.lang.Double => List(bind[java.lang.Double].qualifiedWith(qualifier).toInstance(d))
-      case _ => Nil
-    }
+  private def bindNumber(key: String, value: ConfigValue): List[Binding[_]] = value.unwrapped() match {
+    case i: java.lang.Integer => List(
+      bind[java.lang.Integer].qualifiedWith(Configs.config(key)).toInstance(i),
+      bind[java.lang.Long].qualifiedWith(Configs.config(key)).toInstance(java.lang.Long.valueOf(i.longValue())),
+      bind[java.lang.Double].qualifiedWith(Configs.config(key)).toInstance(java.lang.Double.valueOf(i.doubleValue()))
+    )
+    case l: java.lang.Long => List(
+      bind[java.lang.Long].qualifiedWith(Configs.config(key)).toInstance(l),
+      bind[java.lang.Double].qualifiedWith(Configs.config(key)).toInstance(java.lang.Double.valueOf(l.doubleValue()))
+    )
+    case d: java.lang.Double => List(bind[java.lang.Double].qualifiedWith(Configs.config(key)).toInstance(d))
+    case _ => Nil
   }
 
-  private def bindListBody(key: String, values: List[ConfigValue], index: Int = 0): List[Binding[_]] = {
-    values match {
-      case Nil => Nil
-      case head :: tail => bind(key + "." + index, head) ::: bindListBody(key, tail, index + 1)
-    }
+  private def bindListBody(key: String, values: List[ConfigValue], index: => Int = 0): List[Binding[_]] = values match {
+    case Nil => Nil
+    case head :: tail => bind(key + "." + index, head) ::: bindListBody(key, tail, index + 1)
   }
 
   private def bindObject(key: String, value: ConfigValue): List[Binding[_]] = {
@@ -62,10 +59,8 @@ class InjectableConfigModule(basePath: Option[String] = None) extends Module {
     )
   }
 
-  private def bindObjectBody(key: String, value: Map[String, ConfigValue]): List[Binding[_]] = {
-    value.flatMap { case (mKey, mVal) =>
-      bind(key + "." + mKey, mVal)
-    }.toList
-  }
+  private def bindObjectBody(key: String, value: Map[String, ConfigValue]): List[Binding[_]] = value.flatMap { case (mKey, mVal) =>
+    bind(key + "." + mKey, mVal)
+  }.toList
 
 }
