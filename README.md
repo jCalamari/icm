@@ -62,3 +62,7 @@ class Application @Inject()(@Config("icm.int") intScala: Int,
 }
 ```
 
+### Limits
+
+- No `Duration` handling due to Typesafe parsing API being private.
+
