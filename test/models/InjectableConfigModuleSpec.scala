@@ -97,22 +97,24 @@ object InjectableConfigModuleSpec extends Specification {
       injector.instanceOf(binding(classOf[Configuration], "emptyConf.innerEmptyConf")).entrySet must beEmpty
     }
 
-    "not inject nulls" in {
+    "inject complex multitype config" in {
       val injector = playInjector()
-      injector.instanceOf(binding(classOf[Int], "nullRef")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[Long], "nullRef")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[Double], "nullRef")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[String], "nullRef")) must throwAn[ConfigurationException]
-    }
+      injector.instanceOf(binding(classOf[Int], "complex.0")) must equalTo[Int](0)
+      injector.instanceOf(binding(classOf[Long], "complex.0")) must equalTo[Long](0L)
+      injector.instanceOf(binding(classOf[Double], "complex.0")) must equalTo[Double](0D)
+      val config = injector.instanceOf(binding(classOf[Configuration], "complex.1"))
+      config must not be empty
+      config.getString("flat") must beSome("flat")
 
-    "not inject empty list" in {
-      val injector = playInjector()
-      injector.instanceOf(binding(classOf[Int], "emptyList")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[Long], "emptyList")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[Double], "emptyList")) must throwAn[ConfigurationException]
-      injector.instanceOf(binding(classOf[String], "emptyList")) must throwAn[ConfigurationException]
-    }
+      val complexObject = injector.instanceOf(binding(classOf[Configuration], "complex.1.object"))
+      complexObject.entrySet must not be empty
+      complexObject.getString("hello") must beSome("world")
 
+      injector.instanceOf(binding(classOf[String], "complex.1.flat")) must equalTo[String]("flat")
+
+      injector.instanceOf(binding(classOf[String], "complex.2")) must equalTo[String]("boom")
+      injector.instanceOf(binding(classOf[Boolean], "complex.3")) must equalTo[Boolean](false)
+    }
   }
 
   def fakeContext = ApplicationLoader.createContext(Environment.simple())

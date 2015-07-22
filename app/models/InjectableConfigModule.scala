@@ -5,7 +5,6 @@ import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 
 import scala.collection.JavaConverters._
-import scala.language.postfixOps
 
 class InjectableConfigModule(basePath: Option[String] = None) extends Module {
 
