@@ -1,6 +1,6 @@
 ## Injectable Configuration Module
 
-An extension to `Playframework` adding injectable configuration.
+An extension to `Playframework` adding injectable configuration in form of `play.api.inject.Module` - implemented with `Playframework` API.
 Having a following `application.conf`:
 
 ```
