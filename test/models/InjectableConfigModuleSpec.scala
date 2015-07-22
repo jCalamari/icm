@@ -121,11 +121,11 @@ object InjectableConfigModuleSpec extends Specification {
 
   def binding[T](clazz: Class[T], qualifier: String) = {
     // @Config("qualifier")
-    new BindingKey(clazz, Some(QualifierInstance(Configs.config(qualifier))))
+    new BindingKey(clazz, Some(QualifierInstance(Configs.configured(qualifier))))
   }
 
   def playInjector() = {
-    val builder = new GuiceApplicationBuilder().load(new BuiltinModule, new InjectableConfigModule(Some("icm")))
+    val builder = new GuiceApplicationBuilder().load(new BuiltinModule, new InjectableConfigModule)
     val loader = new GuiceApplicationLoader(builder)
     val app = loader.load(fakeContext)
     app.injector

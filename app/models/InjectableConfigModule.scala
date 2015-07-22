@@ -6,14 +6,10 @@ import play.api.{Configuration, Environment}
 
 import scala.collection.JavaConverters._
 
-class InjectableConfigModule(basePath: Option[String] = None) extends Module {
-
-  def this() {
-    this(None)
-  }
+class InjectableConfigModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    val injectableConfig = basePath.flatMap(configuration.getConfig).getOrElse(configuration).underlying
+    val injectableConfig = configuration.getString("play.inject.path").flatMap(configuration.getConfig).getOrElse(configuration).underlying
     injectableConfig.root().entrySet().asScala.map(e => e.getKey -> e.getValue).toSeq.flatMap { case (key, value) =>
       bind(key, value)
     }
@@ -43,23 +39,23 @@ class InjectableConfigModule(basePath: Option[String] = None) extends Module {
   }
 
   private def bindString(s: java.lang.String, key: String): List[Binding[_]] = {
-    List(bind[String].qualifiedWith(Configs.config(key)).toInstance(s))
+    List(bind[String].qualifiedWith(Configs.configured(key)).toInstance(s))
   }
 
   private def bindBoolean(b: java.lang.Boolean, key: String): List[Binding[_]] = {
-    List(bind[java.lang.Boolean].qualifiedWith(Configs.config(key)).toInstance(b))
+    List(bind[java.lang.Boolean].qualifiedWith(Configs.configured(key)).toInstance(b))
   }
 
   private def bindInteger(i: java.lang.Integer, key: String): Binding[_] = {
-    bind[java.lang.Integer].qualifiedWith(Configs.config(key)).toInstance(i)
+    bind[java.lang.Integer].qualifiedWith(Configs.configured(key)).toInstance(i)
   }
 
   private def bindLong(l: java.lang.Long, key: String): Binding[_] = {
-    bind[java.lang.Long].qualifiedWith(Configs.config(key)).toInstance(l)
+    bind[java.lang.Long].qualifiedWith(Configs.configured(key)).toInstance(l)
   }
 
   private def bindDouble(d: java.lang.Double, key: String): Binding[_] = {
-    bind[java.lang.Double].qualifiedWith(Configs.config(key)).toInstance(d)
+    bind[java.lang.Double].qualifiedWith(Configs.configured(key)).toInstance(d)
   }
 
   private def bindListBody(key: String, values: List[ConfigValue], index: => Int = 0): List[Binding[_]] = values match {
@@ -69,8 +65,8 @@ class InjectableConfigModule(basePath: Option[String] = None) extends Module {
 
   private def bindObject(key: String, value: ConfigValue): List[Binding[_]] = {
     List(
-      bind[Configuration].qualifiedWith(Configs.config(key)).toInstance(value.asConfig()),
-      bind[play.Configuration].qualifiedWith(Configs.config(key)).toInstance(value.asJavaConfig())
+      bind[Configuration].qualifiedWith(Configs.configured(key)).toInstance(value.asConfig()),
+      bind[play.Configuration].qualifiedWith(Configs.configured(key)).toInstance(value.asJavaConfig())
     )
   }
 
